@@ -92,6 +92,7 @@ echo -----------------------------
 echo  Uploading YouTube HD stream 
 echo -----------------------------
 echo.
+start https://encoders.tasvideos.org/status.html
 start call "./programs\tvcman.exe" "./output/encode%VBPREF%youtube.mkv" todo tasvideos ^< "./programs/ytdesc.txt" ^& exit
 if "%EncodeChoice%"=="3" goto Defaults
 
