@@ -15,6 +15,11 @@ halfFPS = false		# for games that "lag" every other frame
 stackNDS = false	# stack one of NDS screens near both of them for HD
 vb = false			# for Virtual Boy encodes
 
+#	Resizer (for hd upscaling and multisegment import)
+resizer = hd ? "Point" : "Lanczos"
+#	force Lanczos for 3D footage with increased internal resolution 
+# resizer = "Lanczos"
+
 #	Subtitles contents
 game = "Game Name"
 branch = "'branch'"	# lowercase for usual words, capital for in-game capital words. when blank, leave "''"
@@ -186,12 +191,14 @@ width	= width  % 4 == 1 ? width  + 3 : \
 		  width  % 4 == 3 ? width  + 1 : width
 
 #	Rescaling
-#	hd: pointresize to 4K, then just subsample with lanczos in the end
-#	handheld and primary (dedupped): do nothing
-#	512kb: do ARC with lanczos
 #	extra HQ:
 #		hires source: downscale straight to aspect-corrected res with lanczos
 #		lowres source: upscalse by our factor with point, then do ARC with lanczos for 512kb
+#	hd:
+#		resize to 4K, then just subsample with lanczos in the end
+#		for hires 3D footage, upscaled with lanczos
+#	handheld and primary (dedupped): do nothing
+#	512kb: do ARC with lanczos
 g = hq && !hd \
 	? hq_hiResSrc \
 		? Lanczos4Resize(hq_baseWidth * hq_scale, hq_baseHeight * hq_scale) \
@@ -200,13 +207,13 @@ g = hq && !hd \
 			: PointResize(last.width * hq_scale, last.height * hq_scale) \
 				.Lanczos4Resize(width * hq_scale, height * hq_scale) \
 	: hd \
-		? PointResize(width, height) \
+		? eval(resizer+"Resize(width, height)") \
 		: handHeld || pass != 0 \
 			? last \
 			: Lanczos4Resize(width, height)
 
 #	If ms enabled, we use parameters of "g" to apply to all segments
-g = ms ? g.AppendSegment(ms_base, ms_start, ms_end, ms_format, hd).ConvertToRGB32() : g
+g = ms ? g.AppendSegment(ms_base, ms_start, ms_end, ms_format, resizer).ConvertToRGB32() : g
 
 #	Logo
 d = ImageSource(file=file, start=0, end=int((g.FrameRate * 2) - 1), fps=g.FrameRate) \
