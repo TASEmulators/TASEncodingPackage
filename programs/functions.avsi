@@ -5,14 +5,12 @@ function AppendSegment(
 \    int first_val,
 \    int last_val,
 \ string format,
-\   bool hd
+\ string resizer
 \){
 	filename = base + string(first_val, format) + ".avi"
-	result   = hd \
-		? AviSource(filename).PointResize  (sample.width, sample.height) \
-		: AviSource(filename).LanczosResize(sample.width, sample.height)
+	result = AviSource(filename).Eval(resizer + """Resize(sample.width, sample.height)""")
 	return (first_val < last_val) \
-		? result + sample.AppendSegment(base, first_val+1, last_val, format, hd) \
+		? result + sample.AppendSegment(base, first_val+1, last_val, format, resizer) \
 		: result
 }
 
