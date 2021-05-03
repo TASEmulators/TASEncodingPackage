@@ -1,6 +1,10 @@
 #	The downloadable/HD encoding script
 #	http://tasvideos.org/EncodingGuide/PublicationManual.html
 
+SetFilterMTMode("DEFAULT_MT_MODE", MT_MULTI_INSTANCE)
+AddAutoloadDir("MAINSCRIPTDIR/programs/plugins")
+Import(ScriptDir() + "programs/functions.avsi")
+
 AviSource("movie.avi")
 
 #	Dolphin (with FFMPEG). Use FFV1 patch for dumping:
@@ -8,6 +12,7 @@ AviSource("movie.avi")
 # AviSource("movie.avi", pixel_type="RGB24")
 # AudioDub(last, wavsource("dspdump.wav"))
 
+threads = 4			# manual, how many threads avisynth should use.
 trimFrame = 654321	# manual, discards logo lengh automatically
 handHeld = false 	# auto, but set it for preview
 hd = false			# auto, but set it for preview
@@ -92,7 +97,6 @@ k = 1
 N = 525
 b = 0
 D = (k * N + b) * floor(floor(M / F) / N) # don't edit this formula
-LoadCPlugin("./programs/timecodefps.dll")
 video = last.TimecodeFPS("timecodes.txt", fpsnum=M, fpsden=D)
 audio = \
 	WavSource("dspdump0.wav") + \
@@ -117,15 +121,6 @@ i444 = false
 originalWidth = last.width
 originalHeight = last.height
 hdvb = hd && vb
-
-root = ScriptDir()
-Import     (root + "programs\functions.avsi")
-LoadPlugin (root + "programs\ExactDedup.dll")
-LoadPlugin (root + "programs\mvtools2.dll")
-LoadPlugin (root + "programs\mt_masktools-26.dll")
-LoadPlugin (root + "programs\autolevels_0.6_20110109.dll")
-LoadCPlugin(root + "programs\freesub.dll")
-LoadCPlugin(root + "programs\assrender.dll" )
 
 #	Make too dark scenes brighter
 # AutoLevels(filterRadius=1000, sceneChgThresh=200, gamma=1.1)
@@ -365,6 +360,8 @@ hdvb ? yt3d(left, right).AudioDub(left) : 0
 
 Trim(0, trimFrame)
 
+# pass == 1 ? assrender("subtitles.ass") : 0
+
 #	Youtube can't hanble fps above 60
 hd && last.FrameRate > 60 ? ChangeFPS(60) : 0
 
@@ -377,8 +374,6 @@ ConvertToYV24(chromaresample="point", matrix=(hd \
 		? "Rec601" \
 		: "PC.601")))
 
-# pass == 1 ? assrender("subtitles.ass") : 0
-
 #	Remove duplicate frames for primary
 pass == 1 ? ExactDedup(firstpass=true, dupinfo="./temp/dup.txt",times="./temp/times.txt") : 0
 pass == 2 ? ExactDedup(firstpass=false,dupinfo="./temp/dup.txt"                         ) : 0
@@ -390,3 +385,5 @@ i444 ? last : ConvertToYV12(chromaresample="lanczos", matrix=(hd \
 	: (pass == 0 \
 		? "Rec601" \
 		: "PC.601")))
+
+pass != 1 ? Prefetch(threads) : last
