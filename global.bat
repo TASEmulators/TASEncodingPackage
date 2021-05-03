@@ -246,7 +246,6 @@ echo --------------------------------
 echo.
 :: Audio ::
 echo Encoding audio...
-rem ".\programs\avs2pipemod" -wav encode.avs | ".\programs\sox" -t wav - -t wav - trim 0.0065 | ".\programs\opusenc" --bitrate 64 --padding 0 - ".\temp\audio.opus"
 ".\programs\ffmpeg" -y -hide_banner -v error -stats -i encode.avs -vn -c:a libopus -b:a 64K ".\temp\audio.opus"
 
 :: Timecodes ::
@@ -296,7 +295,6 @@ echo ----------------------------------------
 echo.
 :: Audio ::
 echo Encoding audio...
-rem ".\programs\avs2pipemod" -wav encode.avs | ".\programs\sox" -t wav - -t wav - trim 0.0065 | ".\programs\opusenc" --bitrate 128 --padding 0 - ".\temp\audio_extra.opus"
 ".\programs\ffmpeg" -y -hide_banner -v error -stats -i encode.avs -vn -c:a libopus -b:a 128K ".\temp\audio_extra.opus"
 
 :: Timecodes ::
