@@ -1,0 +1,25 @@
+# Lines starting with this character are ignored
+# To override some options specifically for the shared build, create a ffmpeg_options_shared.txt file.
+
+# Required stuff
+--disable-autodetect
+--enable-bzlib
+--enable-lzma
+--enable-zlib
+
+# Disable everything and manually enable only what we want
+--disable-avdevice
+--disable-swscale
+--disable-postproc
+--disable-network
+--disable-schannel
+--disable-everything
+--disable-debug
+
+# Basics and Avisynth
+--enable-protocol=file
+--enable-protocol=pipe
+--enable-avisynth
+--enable-demuxer=avisynth
+--enable-decoder=rawvideo
+--enable-decoder=pcm*
