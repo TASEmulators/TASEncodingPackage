@@ -273,7 +273,7 @@ echo -------------------------------
 echo.
 :: Audio ::
 echo Encoding audio...
-".\programs\ffmpeg" -y -hide_banner -v error -stats -i encode.avs -vn -af atrim=start_sample=7107 -c:a libfdk_aac -profile:a aac_he_v2 -vbr 2 ".\temp\audio.mp4"
+".\programs\ffmpeg" -y -hide_banner -v error -stats -i encode.avs -vn -af atrim=start_sample=7107 -c:a libfdk_aac -profile:a aac_he -vbr 2 ".\temp\audio.mp4"
 
 :: Video ::
 echo Encoding video...
@@ -322,7 +322,7 @@ echo ---------------------------------------
 echo.
 :: Audio ::
 echo Encoding audio...
-".\programs\ffmpeg" -y -hide_banner -v error -stats -i encode.avs -vn -af atrim=start_sample=7107 -c:a libfdk_aac -profile:a aac_he_v2 -vbr 5 ".\temp\audio_extra.mp4"
+".\programs\ffmpeg" -y -hide_banner -v error -stats -i encode.avs -vn -af atrim=start_sample=7107 -c:a libfdk_aac -profile:a aac_he -vbr 5 ".\temp\audio_extra.mp4"
 
 :: Video ::
 echo Encoding video...
