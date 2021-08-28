@@ -283,8 +283,7 @@ echo Encoding video...
 
 :: Muxing ::
 for /f "tokens=2 delims==" %%i in ('FINDSTR "r_frame_rate" "%~dp0temp\info.txt"') do (set fps=%%i)
-for /f %%k in ('^""%~dp0programs\div" %fps%^"') do (set double=%%k)
-".\programs\mp4box_x64" -hint -add ".\temp\video_512kb.h264":fps=%double% -add ".\temp\audio.mp4" -new ".\output\encode_512kb.mp4"
+".\programs\mp4box_x64" -hint -add ".\temp\video_512kb.h264":fps=%fps% -add ".\temp\audio.mp4" -new ".\output\encode_512kb.mp4"
 goto Defaults
 
 : ExtraHQ_10bit444
@@ -332,8 +331,7 @@ echo Encoding video...
 
 :: Muxing ::
 for /f "tokens=2 delims==" %%i in ('FINDSTR "r_frame_rate" "%~dp0temp\info.txt"') do (set fps=%%i)
-for /f %%k in ('^""%~dp0programs\div" %fps%^"') do (set double=%%k)
-".\programs\mp4box_x64" -hint -add ".\temp\video_%ExtraScale%x_512kb.h264":fps=%double% -add ".\temp\audio_extra.mp4" -new ".\output\encode_%ExtraScale%x_512kb.mp4"
+".\programs\mp4box_x64" -hint -add ".\temp\video_%ExtraScale%x_512kb.h264":fps=%fps% -add ".\temp\audio_extra.mp4" -new ".\output\encode_%ExtraScale%x_512kb.mp4"
 goto check_more_hqfactors
 
 :check_more_hqfactors
