@@ -35,8 +35,10 @@
 --enable-encoder=libopus
 --enable-encoder=libvorbis
 --enable-encoder=libfdk_aac
+--enable-encoder=flac
 --enable-muxer=opus
 --enable-muxer=ogg
 --enable-muxer=mp4
+--enable-muxer=flac
 --enable-filter=aresample       # Needed for resampling between formats
 --enable-filter=atrim

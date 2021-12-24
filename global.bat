@@ -141,7 +141,7 @@ echo ----------------------------
 echo.
 :: Audio ::
 echo Encoding audio...
-".\programs\ffmpeg" -y -hide_banner -v error -stats -i encode.avs -vn -c:a libvorbis -q 10 ".\temp\audio.ogg"
+".\programs\ffmpeg" -y -hide_banner -v error -stats -i encode.avs -vn -c:a flac ".\temp\audio.flac"
 
 :: Video ::
 echo Encoding video...
@@ -150,7 +150,7 @@ echo Encoding video...
 ".\programs\replacetext" "encode.avs" "hd = true" "hd = false"
 
 :: Muxing ::
-".\programs\mkvmerge" -o ".\output\encode__youtube.mkv" --compression -1:none ".\temp\video.mkv" ".\temp\audio.ogg"
+".\programs\mkvmerge" -o ".\output\encode__youtube.mkv" --compression -1:none ".\temp\video.mkv" ".\temp\audio.flac"
 
 :: kept in case we have scripted uploading again
 :: echo.
