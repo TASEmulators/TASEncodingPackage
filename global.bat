@@ -176,7 +176,7 @@ echo Encoding audio...
 
 :: Video ::
 echo Encoding video...
-".\programs\x264_x64" --threads auto --crf 20 --keyint 600 --ref 16 --no-fast-pskip --bframes 16 --b-adapt 2 --direct auto --me tesa --merange 64 --subme 11 --trellis 2 --partitions all --no-dct-decimate --range tv --input-range tv --colormatrix smpte170m -o ".\temp\video.h264" encode.avs
+".\programs\x264_x64" --threads auto --crf 20 --preset veryslow --keyint 600 --merange 64 --range tv --input-range tv --colormatrix smpte170m -o ".\temp\video.h264" encode.avs
 
 :: Muxing ::
 for /f "tokens=2 delims==" %%i in ('FINDSTR "r_frame_rate" "%~dp0temp\info.txt"') do (set fps=%%i)
