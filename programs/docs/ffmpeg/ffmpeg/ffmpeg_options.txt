@@ -30,10 +30,8 @@
 
 # Audio encoding
 --enable-libopus
---enable-libvorbis
 --enable-libfdk-aac
 --enable-encoder=libopus
---enable-encoder=libvorbis
 --enable-encoder=libfdk_aac
 --enable-encoder=flac
 --enable-muxer=opus
