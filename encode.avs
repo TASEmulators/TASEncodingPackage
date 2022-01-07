@@ -65,7 +65,7 @@ subString1	= game + "\n" \
 subString2	= "Playing time: " + time \
 			+ "\nRerecord count: " + rerecords	
 subString3	= "This is a tool-assisted recording." \
-subString4	= "For details, visit http://TASVideos.org/"
+subString4	= "For details, visit https://TASVideos.org/"
 
 #	Fix progressing (not floating) audio/video desync
 avDesyncFixer = false
