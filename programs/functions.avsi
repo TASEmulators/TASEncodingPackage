@@ -6,12 +6,22 @@ function AppendSegment(
 \    int last_val,
 \ string format,
 \ string resizer,
+\	bool hd,
 \ string pix_type
 \){
 	filename = base + string(first_val, format) + ".avi"
-	result = AviSource(filename, pixel_type=pix_type).Eval(resizer + """Resize(sample.width, sample.height)""")
+	result = AviSource(filename, pixel_type=pix_type)
+	
+	if (hd) {
+		result = result.Eval(resizer + """Resize(sample.width, sample.height)""")
+	} else {
+		scaler = sample.height / result.height
+		temp_width = result.width * scaler
+		result = result.PointResize(temp_width, sample.height)
+		result = result.Lanczos4Resize(sample.width, sample.height)
+	}
 	return (first_val < last_val) \
-		? result + sample.AppendSegment(base, first_val+1, last_val, format, resizer, pix_type) \
+		? result + sample.AppendSegment(base, first_val+1, last_val, format, resizer, hd, pix_type) \
 		: result
 }
 
