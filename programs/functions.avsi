@@ -17,7 +17,7 @@ function AppendSegment(
 	} else {
 		scaler = sample.height / result.height
 		temp_width = result.width * scaler
-		result = result.PointResize(temp_width, sample.height)
+		result = result.PointResize(int(temp_width), sample.height)
 		result = result.Lanczos4Resize(sample.width, sample.height)
 	}
 	
@@ -30,7 +30,7 @@ function AppendSegment(
 		} else {
 			scaler = sample.height / next_clip.height
 			temp_width = next_clip.width * scaler
-			next_clip = next_clip.PointResize(temp_width, sample.height)
+			next_clip = next_clip.PointResize(int(temp_width), sample.height)
 			next_clip = next_clip.Lanczos4Resize(sample.width, sample.height)
 		}
 		
