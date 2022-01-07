@@ -20,9 +20,24 @@ function AppendSegment(
 		result = result.PointResize(temp_width, sample.height)
 		result = result.Lanczos4Resize(sample.width, sample.height)
 	}
-	return (first_val < last_val) \
-		? result + sample.AppendSegment(base, first_val+1, last_val, format, resizer, hd, pix_type) \
-		: result
+	
+	for (i = first_val + 1, last_val) {
+		filename = base + string(i, format) + ".avi"
+		next_clip = AviSource(filename, pixel_type=pix_type)
+		
+		if (hd) {
+			next_clip = next_clip.Eval(resizer + """Resize(sample.width, sample.height)""")
+		} else {
+			scaler = sample.height / next_clip.height
+			temp_width = next_clip.width * scaler
+			next_clip = next_clip.PointResize(temp_width, sample.height)
+			next_clip = next_clip.Lanczos4Resize(sample.width, sample.height)
+		}
+		
+		result = result + next_clip
+	}
+	
+	return result
 }
 
 function Remove(
