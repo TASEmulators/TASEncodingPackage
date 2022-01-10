@@ -1,5 +1,5 @@
 #	The downloadable/HD encoding script
-#	http://tasvideos.org/EncodingGuide/PublicationManual.html
+#	https://tasvideos.org/EncodingGuide/PublicationManual.html
 
 SetFilterMTMode("DEFAULT_MT_MODE", MT_MULTI_INSTANCE)
 AddAutoloadDir("MAINSCRIPTDIR/programs/plugins")
@@ -86,7 +86,7 @@ avDesyncFixer = false
 # AudioDub(audio, last)
 
 #	Old Dolphin (remove /* and */ to uncomment)
-#	get values at http://tasvideos.org/forum/viewtopic.php?p=373299#373299
+#	get values at https://tasvideos.org/forum/viewtopic.php?p=373299#373299
 /*
 M = 486000000
 F = 60
@@ -229,19 +229,14 @@ subEntry == 4 ? ng_bighalo(subString4,  \
 
 Trim(0, trimFrame)
 
-#	Youtube can't hanble fps above 60
-hd && last.FrameRate > 60 ? ChangeFPS(60) : 0
-
 halfFPS ? SelectOdd : 0
 
-#	YV24 conversion doesn't reduce chroma, so "point" is fine
-ConvertToYV24(chromaresample="point", matrix=(hd \
-	? "Rec709" \
-	: "Rec601"))
+#	Youtube can't handle fps above 60
+hd && last.FrameRate > 60 ? ChangeFPS(60) : 0
 
 #	YV12 reduces chroma, so we use "lanczos" even for HD
-#	http://tasvideos.org/forum/viewtopic.php?t=19426
-ConvertToYV12(chromaresample="point", matrix=(hd \
+#	https://tasvideos.org/forum/viewtopic.php?t=19426
+ConvertToYV12(chromaresample="lanczos", matrix=(hd \
 	? "Rec709" \
 	: "Rec601"))
 

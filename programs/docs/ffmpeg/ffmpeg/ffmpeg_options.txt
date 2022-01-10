@@ -29,12 +29,9 @@
 --enable-encoder=wrapped_avframe
 
 # Audio encoding
---enable-libopus
 --enable-libfdk-aac
---enable-encoder=libopus
 --enable-encoder=libfdk_aac
 --enable-encoder=flac
---enable-muxer=opus
 --enable-muxer=mp4
 --enable-muxer=flac
 --enable-filter=aresample       # For resampling between formats
