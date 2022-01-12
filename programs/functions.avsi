@@ -15,8 +15,8 @@ function AppendSegment(
 	if (hd) {
 		result = result.Eval(resizer + """Resize(sample.width, sample.height)""")
 	} else {
-		scaler = sample.height / result.height
-		temp_width = result.width * scaler
+		scaler = float(sample.height) / float(result.height)
+		temp_width = float(result.width) * scaler
 		result = result.PointResize(int(temp_width), sample.height)
 		result = result.Lanczos4Resize(sample.width, sample.height)
 	}
@@ -28,8 +28,8 @@ function AppendSegment(
 		if (hd) {
 			next_clip = next_clip.Eval(resizer + """Resize(sample.width, sample.height)""")
 		} else {
-			scaler = sample.height / next_clip.height
-			temp_width = next_clip.width * scaler
+			scaler = float(sample.height) / float(next_clip.height)
+			temp_width = float(next_clip.width) * scaler
 			next_clip = next_clip.PointResize(int(temp_width), sample.height)
 			next_clip = next_clip.Lanczos4Resize(sample.width, sample.height)
 		}
