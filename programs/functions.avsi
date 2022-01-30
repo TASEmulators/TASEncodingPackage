@@ -144,7 +144,7 @@ circle_12="0 0 "+\
 
     invis = BlankClip(1, w, h, pixel_type="YV12")
     tm = Subtitle(invis, text, x, y, 0, 0, font, size, $00FFFFFF,\
-        0, align, spc, lsp, font_width, font_angle)
+        0, align, spc, lsp, font_width, font_angle, utf8=true)
     text_mask = tm.mt_expand(mode="0 0 "+shadow, chroma="-128")
     halo_mask = text_mask.mt_expand(mode=halo, chroma="-128")
     
@@ -161,7 +161,7 @@ circle_12="0 0 "+\
 
     hc = BlankClip(1, w, h, color=h_color)
     tc = Subtitle(hc, text, x, y, 0, 0, font, size, t_color,\
-        0, align, spc, lsp, font_width, font_angle)
+        0, align, spc, lsp, font_width, font_angle, utf8=true)
     overlay = tc.Mask(alpha_mask.ConvertToRGB32())
     
     clp.ApplyRange(first_frame, last_frame, "Layer", overlay)
