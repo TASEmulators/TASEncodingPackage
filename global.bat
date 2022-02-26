@@ -172,7 +172,7 @@ echo -------------------------------
 echo.
 :: Audio ::
 echo Encoding audio...
-".\programs\ffmpeg" -y -hide_banner -v error -stats -i encode.avs -vn -af atrim=start_sample=7107 -c:a libfdk_aac -profile:a aac_he -vbr 2 ".\temp\audio.mp4"
+".\programs\ffmpeg" -y -hide_banner -v error -stats -i encode.avs -vn -af aresample=48000,atrim=start_sample=5060 -c:a libfdk_aac -profile:a aac_he -vbr 2 ".\temp\audio.mp4"
 
 :: Video ::
 echo Encoding video...
