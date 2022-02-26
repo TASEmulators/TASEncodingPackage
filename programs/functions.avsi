@@ -6,13 +6,38 @@ function AppendSegment(
 \    int last_val,
 \ string format,
 \ string resizer,
+\	bool hd,
 \ string pix_type
 \){
 	filename = base + string(first_val, format) + ".avi"
-	result = AviSource(filename, pixel_type=pix_type).Eval(resizer + """Resize(sample.width, sample.height)""")
-	return (first_val < last_val) \
-		? result + sample.AppendSegment(base, first_val+1, last_val, format, resizer, pix_type) \
-		: result
+	result = AviSource(filename, pixel_type=pix_type)
+	
+	if (hd) {
+		result = result.Eval(resizer + """Resize(sample.width, sample.height)""")
+	} else {
+		scaler = float(sample.height) / float(result.height)
+		temp_width = float(result.width) * scaler
+		result = result.PointResize(int(temp_width), sample.height)
+		result = result.Lanczos4Resize(sample.width, sample.height)
+	}
+	
+	for (i = first_val + 1, last_val) {
+		filename = base + string(i, format) + ".avi"
+		next_clip = AviSource(filename, pixel_type=pix_type)
+		
+		if (hd) {
+			next_clip = next_clip.Eval(resizer + """Resize(sample.width, sample.height)""")
+		} else {
+			scaler = float(sample.height) / float(next_clip.height)
+			temp_width = float(next_clip.width) * scaler
+			next_clip = next_clip.PointResize(int(temp_width), sample.height)
+			next_clip = next_clip.Lanczos4Resize(sample.width, sample.height)
+		}
+		
+		result = result + next_clip
+	}
+	
+	return result
 }
 
 function Remove(
@@ -119,7 +144,7 @@ circle_12="0 0 "+\
 
     invis = BlankClip(1, w, h, pixel_type="YV12")
     tm = Subtitle(invis, text, x, y, 0, 0, font, size, $00FFFFFF,\
-        0, align, spc, lsp, font_width, font_angle)
+        0, align, spc, lsp, font_width, font_angle, utf8=true)
     text_mask = tm.mt_expand(mode="0 0 "+shadow, chroma="-128")
     halo_mask = text_mask.mt_expand(mode=halo, chroma="-128")
     
@@ -136,7 +161,7 @@ circle_12="0 0 "+\
 
     hc = BlankClip(1, w, h, color=h_color)
     tc = Subtitle(hc, text, x, y, 0, 0, font, size, t_color,\
-        0, align, spc, lsp, font_width, font_angle)
+        0, align, spc, lsp, font_width, font_angle, utf8=true)
     overlay = tc.Mask(alpha_mask.ConvertToRGB32())
     
     clp.ApplyRange(first_frame, last_frame, "Layer", overlay)

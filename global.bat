@@ -180,7 +180,7 @@ echo Encoding video...
 
 :: Muxing ::
 for /f "tokens=2 delims==" %%i in ('FINDSTR "r_frame_rate" "%~dp0temp\info.txt"') do (set fps=%%i)
-".\programs\mp4box_x64" -hint -add ".\temp\video.h264":fps=%fps% -add ".\temp\audio.mp4" -new ".\output\encode__480p.mp4"
+".\programs\mp4box_x64" -hint -add ".\temp\video.h264":fps=%fps% -add ".\temp\audio.mp4" -new ".\output\encode.mp4"
 goto Defaults
 
 : Defaults
