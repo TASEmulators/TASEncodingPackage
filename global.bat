@@ -87,7 +87,7 @@ for /f "tokens=2 skip=2 delims== " %%G in ('find "wAspect = " "%~dp0encode.avs"'
 for /f "tokens=2 skip=2 delims== " %%G in ('find "hAspect = " "%~dp0encode.avs"') do (set current_hAspect=%%G)
 ".\programs\replacetext" "encode.avs" "hAspect = %current_hAspect%" "hAspect = %ar_h%"
 
-".\programs\replacetext" "encode.avs" "handHeld = true" "handHeld = false"
+".\programs\replacetext" "encode.avs" "ARCorrection = false" "ARCorrection = true"
 ".\programs\ffprobe" -hide_banner -v error -select_streams v -of default -show_entries stream=width,height,r_frame_rate encode.avs > ".\temp\info.txt"
 
 for /f "tokens=2 delims==" %%G in ('FINDSTR "width" "%~dp0temp\info.txt"') do (set width=%%G)
@@ -101,7 +101,7 @@ goto ENCODE_OPTIONS
 
 : handHeld_SAR
 set VAR=1:1
-".\programs\replacetext" "encode.avs" "handHeld = false" "handHeld = true"
+".\programs\replacetext" "encode.avs" "ARCorrection = true" "ARCorrection = false"
 ".\programs\ffprobe" -hide_banner -v error -select_streams v -of default -show_entries stream=r_frame_rate encode.avs > ".\temp\info.txt"
 goto ENCODE_OPTIONS
 

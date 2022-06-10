@@ -40,6 +40,17 @@ function AppendSegment(
 	return result
 }
 
+# rounds an integer up or down to the nearest multiple of mod
+function ForceModulo(
+\    int number,
+\    int mod,
+\   bool up
+\){
+	return (up \
+		? (int(number + mod - 1) / mod) * mod \
+		:  int(number            / mod) * mod)
+}
+
 function Remove(
 \   clip c,
 \    int start,

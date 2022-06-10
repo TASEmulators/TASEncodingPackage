@@ -7,7 +7,6 @@ Import(ScriptDir() + "programs/functions.avsi")
 
 #	"RGB24" for FFV1, "AUTO" for the rest
 pixelType = "RGB24"
-
 AviSource("movie.avi", pixel_type=pixelType)
 
 #	Dolphin (with FFMPEG). Use FFV1 patch for dumping:
@@ -15,12 +14,15 @@ AviSource("movie.avi", pixel_type=pixelType)
 # AviSource("movie.avi", pixel_type="RGB24")
 # AudioDub(last, wavsource("dspdump.wav"))
 
-threads = 8			# manual, how many threads avisynth should use.
 trimFrame = 654321	# manual, discards logo lengh automatically
-handHeld = false 	# auto, but set it for preview
+ARCorrection = false	# aspect ratio correction. auto, but set it for preview
 hd = false			# auto, but set it for preview
 halfFPS = false		# for games that "lag" every other frame
-prescaleFactor = 2	# set back to 1 if source is already 480p or 480i
+threads = 8			# manual, how many threads avisynth should use.
+
+#	if the script guessed wrong, force the right factor by setting to non-zero
+#	for Dolphin footage, force 1
+prescaleOverride = 0 
 
 #	Resizer (for hd upscaling and multisegment import)
 resizer = hd ? "Point" : "Lanczos"
@@ -37,24 +39,24 @@ rerecords = "0"
 #	Subtitles timing and placement
 subFF = 2689 		# first subtitles frame, set manually!
 subAlign = 8		# subtitles horizontal alignment (7/8/9)
-subEntry = 3		# sets the number of sub entries (2/3/4)
 subYpc = 1			# subtitles vertical position in percents of video height
 subXpc = 1			# subtitles horizontal position in percents of video width (can be negative)
-subSizepc = 5		# subtitles font size in percents of smaller video side
-subLengthMul = 5	# entry length in seconds (fractions work)
+subEntry = 4		# sets the number of sub entries (2/3/4)
 subFF2delay = 0		# extra delay in frames between subtitle entries 1 and 2
 subFF3delay = 0		# extra delay in frames between subtitle entries 2 and 3
 subFF4delay = 0		# extra delay in frames between subtitle entries 3 and 4
+subLengthMul = 5	# entry length in seconds (fractions work)
+subSizepc = 5		# subtitles font size in percents of smaller video side
 
 #	Multisegment import (upscales hires segments straight to HD when needed)
 #	requires normally importing a sample whose attributes it will use for all segments
 ms = false			# enable multisegment import
-ms_base = "movie_"	# common string for all segment names
-ms_start = 0		# number of the first segment
-ms_end = 15			# number of the last segment
-ms_format = "%1.0f"	# string format: http://avisynth.nl/index.php/Internal_functions#String
-ms_audio = false		# use separate audio file for video
-ms_audiotrack = "PSXjin.wav"	# path to audio file
+msBase = "movie_"	# common string for all segment names
+msStart = 0		# number of the first segment
+msEnd = 15			# number of the last segment
+msFormat = "%1.0f"	# string format: http://avisynth.nl/index.php/Internal_functions#String
+msAudio = false	# use separate audio file for video
+msAudiotrack = "PSXjin.wav" # path to audio file
 
 #	Aspect ratio correction
 wAspect = 4
@@ -123,51 +125,66 @@ avDesyncFixer ? AssumeSampleRate(Round(num / denom)).ResampleAudio(48000) : 0
 # avDesyncFixer ? AssumeFPS(last.FrameCount / last.AudioLengthF * last.AudioRate) : 0
 
 #	Pick logo file
-file = hd \
-	? "hdlogo.png" \
-	: "logo.png"
-# file = !hd ? "logo34.png" : "hdlogo34.png"
+file = hd ? "hdlogo.png" : "logo.png"
+# file = hd ? "hdlogo34.png" : "logo34.png"
 
-prescaleFactor > 1 && !hd ? \
-	PointResize(last.width * prescaleFactor, last.height * prescaleFactor) : 0
+#	Prescale lowres by 4, mid res by 2, and the rest ignore
+magicNumerator = 768
+
+if (prescaleOverride > 0) {
+	prescaleFactor = prescaleOverride
+} else {
+	prescaleFactor = int(magicNumerator / last.height)
+}
+
+# 3 is banned due to chroma subsampling, use 2 instead
+prescaleFactor = prescaleFactor.ForceModulo(2, false)
+
+if (prescaleFactor > 1 && !hd) {
+	PointResize(last.width * prescaleFactor, last.height * prescaleFactor)
+}
 
 #	Aspect ratio correction for SD encodes
-height	= last.height
-width	= handHeld \
-		? last.width \
-		: height * wAspect / hAspect
-width	= width  % 4 == 1 ? width  + 3 \
-		: width  % 4 == 2 ? width  + 2 \
-		: width  % 4 == 3 ? width  + 1 : width
-height	= height % 4 == 1 ? height + 3 \
-		: height % 4 == 2 ? height + 2 \
-		: height % 4 == 3 ? height + 1 : height
+#	if dimensions are not multiples of 4, codecs freak out, so we enforce mod 4
+mod		= 4
+hdHeight= 2160
+height	= last.height.ForceModulo(mod, true)
+width	= (ARCorrection \
+		? height * wAspect / hAspect \
+		: last.width) \
+		.ForceModulo(mod, true)
+
 #	Remember SD frame size for subYpos HD tweaks
 wARC	= width
 hARC	= height
+
 #	Actually go HD if we need
-height	= hd ? 2160 : height
-width	= handHeld \
-		? height * last.width / last.height \
-		: height * wAspect / hAspect
-width	= width  % 4 == 1 ? width  + 3 : \
-		  width  % 4 == 2 ? width  + 2 : \
-		  width  % 4 == 3 ? width  + 1 : width
-hStretch = height / last.height
+if (hd) {
+	height = hdHeight
+}
+
+width	= (ARCorrection \
+		? height * wAspect / hAspect \
+		: height * last.width / last.height) \
+		.ForceModulo(mod, true)
+hStretch= height / last.height
 
 #	Rescaling
 #	hd: resize to 4K, then just subsample with lanczos in the end
 #	handheld: do nothing
 #	480p: do ARC with lanczos
-resized = hd \
-		? eval(resizer+"Resize(width, height)") \
-		: handHeld \
-			? last \
-			: Lanczos4Resize(width, height)
+resized = hd || ARCorrection \
+	? Eval((hd ? resizer : "Lanczos4") + "Resize(width, height)") \
+	: last
 
 #	If ms enabled, we use parameters of "resized" to apply to all segments
-resized = ms ? resized.AppendSegment(ms_base, ms_start, ms_end, ms_format, resizer, hd,  pixelType).ConvertToRGB32() : resized
-resized = ms_audio ? AudioDub(resized, WavSource(ms_audiotrack)) : resized
+if (ms) {
+	resized = resized.AppendSegment(msBase, msStart, msEnd, msFormat, resizer, hd, pixelType).ConvertToRGB32()
+	
+	if (ms_audio) {
+		resized = AudioDub(resized, WavSource(msAudiotrack))
+	}
+}
 
 #	Logo
 logoVideo = ImageSource(file=file, start=0, end=int((resized.FrameRate * 2) - 1), fps=resized.FrameRate) \
@@ -177,14 +194,16 @@ logo = AudioDub(logoVideo, logoAudio).Lanczos4Resize(resized.width, resized.heig
 last = logo ++ resized
 
 #	Subtitles variables
-subXpos		= float(last.width) / 100 * subXpc
-subXpos 	= subAlign == 7 || subAlign == 4 || subAlign == 1 \
-			? subXpos \
-			: subAlign == 8 || subAlign == 5 || subAlign == 2 \
-			? last.width / 2 + subXpos \
-			: last.width - subXpos
+subXpos = float(last.width) / 100 * subXpc
+
+if (subAlign == 9 || subAlign == 6 || subAlign == 3) {
+	subXpos = last.width - subXpos
+} else if (subAlign == 8 || subAlign == 5 || subAlign == 2) {
+	subXpos = last.width / 2 + subXpos
+}
+
 subYpos		= float(last.height) / 100 * subYpc
-smallerSide = last.height < last.width ? last.height : last.width
+smallerSide = min(last.height, last.width)
 subSize 	= float(smallerSide) / 100 * subSizepc
 subHaloSize = floor(subSize / 7)
 subLength	= int(last.FrameRate * subLengthMul)
@@ -194,41 +213,33 @@ subFF4		= subFF3 + subLength + 1 + subFF4delay
 subColor	= $00FFFFFF
 subRadius	= hd ? 0 : subHaloSize
 
-#	Subtitles functions
-subEntry == 2 ? ng_bighalo(subString1 + "\n" + SubString2, \
-	x=subXpos, y=subYpos, align=subAlign, first_frame=subFF, \
-	last_frame=subFF+subLength, size=subSize, \
-	text_color=subColor, halo_color=$00000000, lsp=2, halo_radius=subRadius) : 0
-	
-subEntry == 2 ? ng_bighalo(subString3 + "\n" + subString4, \
-	x=subXpos, y=subYpos, align=subAlign, first_frame=subff2, \
-	last_frame=subff2+subLength, size=subSize, \
-	text_color=subColor, halo_color=$00000000, lsp=2, halo_radius=subRadius) : 0
-	
-subEntry == 3 || subEntry == 4 ? ng_bighalo(subString1, \
-	x=subXpos, y=subYpos, align=subAlign, first_frame=subFF, \
-	last_frame=subFF+subLength, size=subSize, \
-	text_color=subColor, halo_color=$00000000, lsp=2, halo_radius=subRadius) : 0
-	
-subEntry == 3 || subEntry == 4 ? ng_bighalo(subString2, \
-	x=subXpos, y=subYpos, align=subAlign, first_frame=subff2, \
-	last_frame=subff2+subLength, size=subSize, \
-	text_color=subColor, halo_color=$00000000, lsp=2, halo_radius=subRadius) : 0
-	
-subEntry == 3 ? ng_bighalo(subString3 + "\n" + subString4,  \
-	x=subXpos, y=subYpos, align=subAlign, first_frame=subFF3, \
-	last_frame=subFF3+subLength, size=subSize, \
-	text_color=subColor, halo_color=$00000000, lsp=2, halo_radius=subRadius) : 0
-	
-subEntry == 4 ? ng_bighalo(subString3,  \
-	x=subXpos, y=subYpos, align=subAlign, first_frame=subFF3, \
-	last_frame=subFF3+subLength, size=subSize, \
-	text_color=subColor, halo_color=$00000000, lsp=2, halo_radius=subRadius) : 0
+if (subEntry == 2) {
+	subString1 = subString1 + "\n" + SubString2
+	SubString2 = subString3 + "\n" + subString4
+} else if (subEntry == 3) {
+	subString3 = subString3 + "\n" + subString4
+}
 
-subEntry == 4 ? ng_bighalo(subString4,  \
-	x=subXpos, y=subYpos, align=subAlign, first_frame=subFF4, \
-	last_frame=subFF4+subLength, size=subSize, \
-	text_color=subColor, halo_color=$00000000, lsp=2, halo_radius=subRadius) : 0
+#	Subtitles functions
+ng_bighalo(subString1, x=subXpos, y=subYpos, align=subAlign, \
+	first_frame=subFF, last_frame=subFF+subLength, size=subSize, \
+	text_color=subColor, halo_color=$00000000, lsp=2, halo_radius=subRadius)
+
+ng_bighalo(SubString2, x=subXpos, y=subYpos, align=subAlign, \
+	first_frame=subff2, last_frame=subff2+subLength, size=subSize, \
+	text_color=subColor, halo_color=$00000000, lsp=2, halo_radius=subRadius)
+
+if (subEntry == 3 || subEntry == 4) {
+	ng_bighalo(subString3, x=subXpos, y=subYpos, align=subAlign, \
+		first_frame=subFF3, last_frame=subFF3+subLength, size=subSize, \
+		text_color=subColor, halo_color=$00000000, lsp=2, halo_radius=subRadius)
+}
+
+if (subEntry == 4) {
+	ng_bighalo(subString4, x=subXpos, y=subYpos, align=subAlign, \
+		first_frame=subFF4, last_frame=subFF4+subLength, size=subSize, \
+		text_color=subColor, halo_color=$00000000, lsp=2, halo_radius=subRadius)
+}
 
 Trim(0, trimFrame)
 
