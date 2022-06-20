@@ -181,7 +181,7 @@ resized = hd || ARCorrection \
 if (ms) {
 	resized = resized.AppendSegment(msBase, msStart, msEnd, msFormat, resizer, hd, pixelType).ConvertToRGB32()
 	
-	if (ms_audio) {
+	if (msAudio) {
 		resized = AudioDub(resized, WavSource(msAudiotrack))
 	}
 }
