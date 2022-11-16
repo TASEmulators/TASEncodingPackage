@@ -169,6 +169,15 @@ width	= (ARCorrection \
 		.ForceModulo(mod, true)
 hStretch= height / last.height
 
+# YouTube has a 4K width limit of 3840
+if (hd && (width > 3840)) {
+	width = 3840
+	height = (ARCorrection \
+		? width * hAspect / wAspect \
+		: width * last.height / last.width) \
+		.ForceModulo(mod, true)
+}
+
 #	Rescaling
 #	hd: resize to 4K, then just subsample with lanczos in the end
 #	handheld: do nothing
