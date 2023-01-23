@@ -1,4 +1,4 @@
-# Multisegment AVI import
+# Multisegment AVI import via resizing
 function AppendSegment(
 \   clip sample,
 \ string base,
@@ -21,6 +21,43 @@ function AppendSegment(
 			PointResize(int(temp_width), sample.height)
 			Lanczos4Resize(sample.width, sample.height)
 		}
+		
+		if (i == first_val) {
+			result = last
+		} else {
+			result = result + last
+		}
+	}
+	
+	return result
+}
+
+# Multisegment AVI import via letterboxing
+function AppendSegmentLetterbox(
+\   clip sample,
+\ string base,
+\    int first_val,
+\    int last_val,
+\ string format,
+\ string pix_type
+\){
+	biggest_width  = 0
+	biggest_height = 0
+	
+	for (i = first_val, last_val) {
+		filename = base + string(i, format) + ".avi"
+		AviSource(filename, pixel_type=pix_type)
+		biggest_width  = biggest_width  < last.width  ? last.width  : biggest_width
+		biggest_height = biggest_height < last.height ? last.height : biggest_height
+	}
+	
+	for (i = first_val, last_val) {
+		filename = base + string(i, format) + ".avi"
+		AviSource(filename, pixel_type=pix_type)
+		
+		xside = int(biggest_width  - last.width)  / 2
+		yside = int(biggest_height - last.height) / 2
+		AddBorders(xside, yside, xside, yside)
 		
 		if (i == first_val) {
 			result = last

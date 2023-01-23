@@ -52,11 +52,13 @@ subSizepc = 5		# subtitles font size in percents of smaller video side
 #	requires normally importing a sample whose attributes it will use for all segments
 ms = false			# enable multisegment import
 msBase = "movie_"	# common string for all segment names
-msStart = 0		# number of the first segment
+msStart = 0			# number of the first segment
 msEnd = 15			# number of the last segment
 msFormat = "%1.0f"	# string format: http://avisynth.nl/index.php/Internal_functions#String
-msAudio = false	# use separate audio file for video
+msAudio = false		# use separate audio file for video
 msAudiotrack = "PSXjin.wav" # path to audio file
+msLetterbox = false	# import segments with letterboxing instead of resizing
+					# (initally imported clip is discarded)
 
 #	Aspect ratio correction
 wAspect = 4
@@ -108,6 +110,10 @@ audio = \
 ######################
 # AUTOMATED SETTINGS #
 ######################
+
+if (msLetterbox) {
+	AppendSegmentLetterbox(msBase, msStart, msEnd, msFormat, pixelType)
+}
 
 ConvertToRGB32()
 
@@ -187,7 +193,7 @@ resized = hd || ARCorrection \
 	: last
 
 #	If ms enabled, we use parameters of "resized" to apply to all segments
-if (ms) {
+if (ms && !msLetterbox) {
 	resized = resized \
 		.AppendSegment(msBase, msStart, msEnd, msFormat, resizer, hd, pixelType) \
 		.ConvertToRGB32()
