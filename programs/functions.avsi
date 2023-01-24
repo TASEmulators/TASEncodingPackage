@@ -34,7 +34,6 @@ function AppendSegment(
 
 # Multisegment AVI import via letterboxing
 function AppendSegmentLetterbox(
-\   clip sample,
 \ string base,
 \    int first_val,
 \    int last_val,

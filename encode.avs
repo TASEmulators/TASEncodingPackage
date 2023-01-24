@@ -51,14 +51,13 @@ subSizepc = 5		# subtitles font size in percents of smaller video side
 #	Multisegment import (upscales hires segments straight to HD when needed)
 #	requires normally importing a sample whose attributes it will use for all segments
 ms = false			# enable multisegment import
+msLetterbox = false	# import segments with letterboxing instead of resizing
+					# (initally imported clip is discarded)
 msBase = "movie_"	# common string for all segment names
 msStart = 0			# number of the first segment
 msEnd = 15			# number of the last segment
 msFormat = "%1.0f"	# string format: http://avisynth.nl/index.php/Internal_functions#String
-msAudio = false		# use separate audio file for video
-msAudiotrack = "PSXjin.wav" # path to audio file
-msLetterbox = false	# import segments with letterboxing instead of resizing
-					# (initally imported clip is discarded)
+msAudioFile = ""	# path to external audio file. not used when empty
 
 #	Aspect ratio correction
 wAspect = 4
@@ -113,6 +112,10 @@ audio = \
 
 if (msLetterbox) {
 	AppendSegmentLetterbox(msBase, msStart, msEnd, msFormat, pixelType)
+	
+	if (msAudioFile != "") {
+		AudioDub(last, WavSource(msAudioFile))
+	}
 }
 
 ConvertToRGB32()
@@ -198,8 +201,8 @@ if (ms && !msLetterbox) {
 		.AppendSegment(msBase, msStart, msEnd, msFormat, resizer, hd, pixelType) \
 		.ConvertToRGB32()
 	
-	if (msAudio) {
-		resized = AudioDub(resized, WavSource(msAudiotrack))
+	if (msAudioFile != "") {
+		resized = AudioDub(resized, WavSource(msAudioFile))
 	}
 }
 
