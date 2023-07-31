@@ -174,31 +174,29 @@ if (hd) {
 			? height * wAspect / hAspect \
 			: height * last.width / last.height) \
 			.ForceModulo(mod, true)
+		# YouTube has a 4K width limit of 3840 when width > height
+		if (width > 3840) {
+			width = 3840
+			height = (ARCorrection \
+				? width * hAspect / wAspect \
+				: width * last.height / last.width) \
+				.ForceModulo(mod, true)
+		}
 	} else {
 		width = 2160
 		height	= (ARCorrection \
 			? width * hAspect / wAspect \
 			: width * last.height / last.width) \
 			.ForceModulo(mod, true)
+		# YouTube has a 4K height limit of 3840 when height > width
+		if (height > 3840) {
+			height = 3840
+			width = (ARCorrection \
+				? height * wAspect / hAspect \
+				: height * last.width / last.height) \
+				.ForceModulo(mod, true)
+		}
 	}
-}
-
-#	YouTube has a 4K width limit of 3840 when width > height
-#	and a 4K height limit of 3840 when height > width
-if (hd) {}
-	if ((width >= height) && (width > 3840)) {
-		width = 3840
-		height = (ARCorrection \
-			? width * hAspect / wAspect \
-			: width * last.height / last.width) \
-			.ForceModulo(mod, true)
-	else if ((height > width) && (height > 3840)) {
-		height = 3840
-		width = (ARCorrection \
-			? height * wAspect / hAspect \
-			: height * last.width / last.height) \
-			.ForceModulo(mod, true)
-	 }
 }
 
 #	Rescaling
