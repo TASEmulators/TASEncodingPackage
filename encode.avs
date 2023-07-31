@@ -156,7 +156,6 @@ if (prescaleFactor > 1 && !hd) {
 #	Aspect ratio correction for SD encodes
 #	if dimensions are not multiples of 4, codecs freak out, so we enforce mod 4
 mod		= 4
-hdHeight= 2160
 height	= last.height.ForceModulo(mod, true)
 width	= (ARCorrection \
 		? height * wAspect / hAspect \
@@ -169,22 +168,37 @@ hARC	= height
 
 #	Actually go HD if we need
 if (hd) {
-	height = hdHeight
+	if (width >= height) {
+		height = 2160
+		width	= (ARCorrection \
+			? height * wAspect / hAspect \
+			: height * last.width / last.height) \
+			.ForceModulo(mod, true)
+	} else {
+		width = 2160
+		height	= (ARCorrection \
+			? width * hAspect / wAspect \
+			: width * last.height / last.width) \
+			.ForceModulo(mod, true)
+	}
 }
 
-width	= (ARCorrection \
-		? height * wAspect / hAspect \
-		: height * last.width / last.height) \
-		.ForceModulo(mod, true)
-hStretch= height / last.height
-
-# YouTube has a 4K width limit of 3840
-if (hd && (width > 3840)) {
-	width = 3840
-	height = (ARCorrection \
-		? width * hAspect / wAspect \
-		: width * last.height / last.width) \
-		.ForceModulo(mod, true)
+#	YouTube has a 4K width limit of 3840 when width > height
+#	and a 4K height limit of 3840 when height > width
+if (hd) {}
+	if ((width >= height) && (width > 3840)) {
+		width = 3840
+		height = (ARCorrection \
+			? width * hAspect / wAspect \
+			: width * last.height / last.width) \
+			.ForceModulo(mod, true)
+	else if ((height > width) && (height > 3840)) {
+		height = 3840
+		width = (ARCorrection \
+			? height * wAspect / hAspect \
+			: height * last.width / last.height) \
+			.ForceModulo(mod, true)
+	 }
 }
 
 #	Rescaling
