@@ -168,35 +168,33 @@ hARC	= height
 
 #	Actually go HD if we need
 if (hd) {
-	if (width >= height) {
-		height = 2160
-		width	= (ARCorrection \
-			? height * wAspect / hAspect \
-			: height * last.width / last.height) \
-			.ForceModulo(mod, true)
-		# YouTube has a 4K width limit of 3840 when width > height
-		if (width > 3840) {
-			width = 3840
-			height = (ARCorrection \
-				? width * hAspect / wAspect \
-				: width * last.height / last.width) \
-				.ForceModulo(mod, true)
-		}
-	} else {
-		width = 2160
-		height	= (ARCorrection \
-			? width * hAspect / wAspect \
-			: width * last.height / last.width) \
-			.ForceModulo(mod, true)
-		# YouTube has a 4K height limit of 3840 when height > width
-		if (height > 3840) {
-			height = 3840
-			width = (ARCorrection \
-				? height * wAspect / hAspect \
-				: height * last.width / last.height) \
-				.ForceModulo(mod, true)
-		}
+	vertical        = ((width < height) && !ARCorrection) \
+		|| (ARCorrection && ((float(wAspect) / hAspect) < 1))
+	
+	normalAspect	= ARCorrection ? float(wAspect) / hAspect \
+		: float(last.width) / last.height
+	reverseAspect	= ARCorrection ? float(hAspect) / wAspect \
+		: float(last.height) / last.width
+	
+	if (vertical) {
+		temp		= normalAspect
+		normalAspect	= reverseAspect
+		reverseAspect	= temp
 	}
+	
+	smallerSideCap  = 2160
+	biggerSideCap   = 3840
+	
+	smallerSideHD	= smallerSideCap
+	biggerSideHD	= int(smallerSideHD * normalAspect).ForceModulo(mod, true)
+	
+	if (biggerSideHD > biggerSideCap) {
+		biggerSideHD	= biggerSideCap
+		smallerSideHD	= int(biggerSideHD * reverseAspect).ForceModulo(mod, true)
+	}
+	
+	width	= vertical ? smallerSideHD : biggerSideHD
+	height	= vertical ? biggerSideHD  : smallerSideHD
 }
 
 #	Rescaling
