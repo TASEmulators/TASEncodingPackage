@@ -162,10 +162,6 @@ width	= (ARCorrection \
 		: last.width) \
 		.ForceModulo(mod, true)
 
-#	Remember SD frame size for subYpos HD tweaks
-wARC	= width
-hARC	= height
-
 #	Actually go HD if we need
 if (hd) {
 	vertical        = ((width < height) && !ARCorrection) \
