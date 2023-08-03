@@ -164,8 +164,7 @@ width	= (ARCorrection \
 
 #	Actually go HD if we need
 if (hd) {
-	vertical        = ((width < height) && !ARCorrection) \
-		|| (ARCorrection && ((float(wAspect) / hAspect) < 1))
+	vertical        = width < height
 	
 	normalAspect	= ARCorrection ? float(wAspect) / hAspect \
 		: float(last.width) / last.height
