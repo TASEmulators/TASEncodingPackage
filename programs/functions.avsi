@@ -16,9 +16,9 @@ function AppendSegment(
 		if (hd) {
 			Eval(resizer + """Resize(sample.width, sample.height)""")
 		} else {
-			scaler = float(sample.height) / float(last.height)
-			temp_width = float(last.width) * scaler
-			PointResize(int(temp_width), sample.height)
+			scaler = int(float(sample.height) / float(last.height))
+			scaler = scaler < 1 ? 1 : scaler
+			PointResize(last.width * scaler, last.height * scaler)
 			Lanczos4Resize(sample.width, sample.height)
 		}
 		
