@@ -209,8 +209,12 @@ if (ms && !msLetterbox) {
 }
 
 #	Pad out the width and/or height if they are still uneven
-resized.height % 2 > 0 ? StackVertical(resized, resized.Crop(0, resized.height-1, 0, 0)) : 0
-resized.width % 2 > 0 ? StackHorizontal(resized, resized.Crop(resized.width-1, 0, 0, 0)) : 0
+if (resized.width % 2 > 0) {
+	resized = StackHorizontal(resized, resized.Crop(resized.width-1, 0, 0, 0))
+}	
+if (resized.height % 2 > 0) {
+	resized = StackVertical(resized, resized.Crop(0, resized.height-1, 0, 0))
+}
 
 #	Logo
 logoVideo = ImageSource(file=file, start=0, end=int((resized.FrameRate * 2) - 1), fps=resized.FrameRate) \
