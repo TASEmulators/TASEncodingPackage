@@ -120,9 +120,6 @@ if (msLetterbox) {
 
 ConvertToRGB32()
 
-#	Add 1 scanline if height is uneven (ntsc sms, pal c64)
-last.height % 2 > 0 ? StackVertical(last, Crop(0, Height-1, 0, 0)) : 0
-
 #	Make too dark scenes brighter
 # AutoLevels(filterRadius=1000, sceneChgThresh=200, gamma=1.1)
 
@@ -210,6 +207,10 @@ if (ms && !msLetterbox) {
 		resized = AudioDub(resized, WavSource(msAudioFile))
 	}
 }
+
+#	Pad out the width and/or height if they are still uneven
+resized.height % 2 > 0 ? StackVertical(resized, resized.Crop(0, resized.height-1, 0, 0)) : 0
+resized.width % 2 > 0 ? StackHorizontal(resized, resized.Crop(resized.width-1, 0, 0, 0)) : 0
 
 #	Logo
 logoVideo = ImageSource(file=file, start=0, end=int((resized.FrameRate * 2) - 1), fps=resized.FrameRate) \
