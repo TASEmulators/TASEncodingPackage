@@ -192,13 +192,8 @@ if (hd) {
 	height	= vertical ? biggerSideHD  : smallerSideHD
 }
 
-#	Rescaling
-#	hd: resize to 4K, then just subsample with lanczos in the end
-#	handheld: do nothing
-#	480p: do ARC with lanczos
-resized = hd || ARCorrection \
-	? Eval((hd ? resizer : "Lanczos4") + "Resize(width, height)") \
-	: last
+#	Apply calculated resolution
+Eval((hd ? resizer : "Lanczos4") + "Resize(width, height)")
 
 #	If ms enabled, we use parameters of "resized" to apply to all segments
 if (ms && !msLetterbox) {
