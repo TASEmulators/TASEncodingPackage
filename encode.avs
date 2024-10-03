@@ -193,7 +193,7 @@ if (hd) {
 }
 
 #	Apply calculated resolution
-Eval((hd ? resizer : "Lanczos4") + "Resize(width, height)")
+resized = Eval((hd ? resizer : "Lanczos4") + "Resize(width, height)")
 
 #	If ms enabled, we use parameters of "resized" to apply to all segments
 if (ms && !msLetterbox) {
