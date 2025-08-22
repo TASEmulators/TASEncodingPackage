@@ -265,8 +265,9 @@ Trim(0, trimFrame)
 
 halfFPS ? SelectOdd : 0
 
-#	Youtube can't handle fps above 60
-hd && last.FrameRate > 60 ? ChangeFPS(60) : 0
+#	Youtube can't handle fps above 60 or between 30 and 41.
+hd && (last.FrameRate > 60 || (last.FrameRate > 30 && last.FrameRate < 41)) \
+	? ChangeFPS(60) : 0
 
 #	YV12 reduces chroma, so we use "lanczos" even for HD
 #	https://tasvideos.org/forum/viewtopic.php?t=19426
