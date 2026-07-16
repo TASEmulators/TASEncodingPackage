@@ -234,7 +234,7 @@ if (warningScreen) {
 		? "hdwarning.png" \
 		: "warning.png"
 
-	warningVideo = ImageSource(file=file, start=0, end=int((resized.FrameRate * 5) - 1), fps=resized.FrameRate) \
+	warningVideo = ImageSource(file=file, start=0, end=int((resized.FrameRate * 4) - 1), fps=resized.FrameRate) \
 		.ConvertToRGB32().AssumeFPS(resized)
 	warningAudio = BlankClip(warningVideo, audio_rate=resized.AudioRate, channels=resized.AudioChannels)
 	warning = AudioDub(warningVideo, warningAudio).Lanczos4Resize(resized.width, resized.height)
