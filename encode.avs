@@ -72,6 +72,9 @@ subString2	= "Playing time: " + time \
 			+ "\nRerecord count: " + rerecords	
 subString3	= "This is a tool-assisted recording." \
 subString4	= "For details, visit https://TASVideos.org/"
+warningText = "This video contains sequences\n" \
+			+ "of flashing lights that may affect\n" \
+			+ "photosensitive viewers."
 
 #	Fix progressing (not floating) audio/video desync
 avDesyncFixer = false
@@ -134,9 +137,8 @@ avDesyncFixer ? AssumeSampleRate(Round(num / denom)).ResampleAudio(48000) : 0
 #	Alternative method that tweaks framerate instead (not recommended)
 # avDesyncFixer ? AssumeFPS(last.FrameCount / last.AudioLengthF * last.AudioRate) : 0
 
-#	Pick image files
-logoFile = hd ? "hdlogo.png" : "logo.png"
-warningFile = hd ? "hdwarning.png" : "warning.png"
+#	Pick logo file
+file = hd ? "hdlogo.png" : "logo.png"
 # file = hd ? "hdlogo34.png" : "logo34.png"
 
 #	Prescale lowres by 4, mid res by 2, and the rest ignore
@@ -222,7 +224,7 @@ if (hd && width <= height && trimFrame <= resized.FrameRate * 180) {
 }
 
 #	Logo
-logoVideo = ImageSource(file=logoFile, start=0, end=int((resized.FrameRate * 2) - 1), fps=resized.FrameRate) \
+logoVideo = ImageSource(file=file, start=0, end=int((resized.FrameRate * 2) - 1), fps=resized.FrameRate) \
 	.ConvertToRGB32().AssumeFPS(resized)
 logoAudio = BlankClip(logoVideo, audio_rate=resized.AudioRate, channels=resized.AudioChannels)
 logo = AudioDub(logoVideo, logoAudio).Lanczos4Resize(resized.width, resized.height)
@@ -230,10 +232,9 @@ last = logo ++ resized
 
 #	Warning
 if (warningScreen) {
-	warningVideo = ImageSource(file=warningFile, start=0, end=int((resized.FrameRate * 4) - 1), fps=resized.FrameRate) \
-		.ConvertToRGB32().AssumeFPS(resized)
-	warningAudio = BlankClip(warningVideo, audio_rate=resized.AudioRate, channels=resized.AudioChannels)
-	warning = AudioDub(warningVideo, warningAudio).Lanczos4Resize(resized.width, resized.height)
+	warning = BlankClip(clip=resized, length=int((resized.FrameRate * 4)))
+	subSize = float(min(warning.height, warning.width)) / 100 * 6.5
+	warning = Subtitle(warning, warningText, size=subSize, text_color=$00FFFFFF, align=5, lsp=0, utf8=true)
 	
 	last = logo ++ warning ++ resized
 } else {
