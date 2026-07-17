@@ -134,8 +134,9 @@ avDesyncFixer ? AssumeSampleRate(Round(num / denom)).ResampleAudio(48000) : 0
 #	Alternative method that tweaks framerate instead (not recommended)
 # avDesyncFixer ? AssumeFPS(last.FrameCount / last.AudioLengthF * last.AudioRate) : 0
 
-#	Pick logo file
-file = hd ? "hdlogo.png" : "logo.png"
+#	Pick image files
+logoFile = hd ? "hdlogo.png" : "logo.png"
+warningFile = hd ? "hdwarning.png" : "warning.png"
 # file = hd ? "hdlogo34.png" : "logo34.png"
 
 #	Prescale lowres by 4, mid res by 2, and the rest ignore
@@ -221,7 +222,7 @@ if (hd && width <= height && trimFrame <= resized.FrameRate * 180) {
 }
 
 #	Logo
-logoVideo = ImageSource(file=file, start=0, end=int((resized.FrameRate * 2) - 1), fps=resized.FrameRate) \
+logoVideo = ImageSource(file=logoFile, start=0, end=int((resized.FrameRate * 2) - 1), fps=resized.FrameRate) \
 	.ConvertToRGB32().AssumeFPS(resized)
 logoAudio = BlankClip(logoVideo, audio_rate=resized.AudioRate, channels=resized.AudioChannels)
 logo = AudioDub(logoVideo, logoAudio).Lanczos4Resize(resized.width, resized.height)
@@ -229,12 +230,7 @@ last = logo ++ resized
 
 #	Warning
 if (warningScreen) {
-	#	Pick warning file
-	file = hd \
-		? "hdwarning.png" \
-		: "warning.png"
-
-	warningVideo = ImageSource(file=file, start=0, end=int((resized.FrameRate * 4) - 1), fps=resized.FrameRate) \
+	warningVideo = ImageSource(file=warningFile, start=0, end=int((resized.FrameRate * 4) - 1), fps=resized.FrameRate) \
 		.ConvertToRGB32().AssumeFPS(resized)
 	warningAudio = BlankClip(warningVideo, audio_rate=resized.AudioRate, channels=resized.AudioChannels)
 	warning = AudioDub(warningVideo, warningAudio).Lanczos4Resize(resized.width, resized.height)
