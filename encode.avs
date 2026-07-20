@@ -14,11 +14,12 @@ AviSource("movie.avi", pixel_type=pixelType)
 # AviSource("movie.avi", pixel_type="RGB24")
 # AudioDub(last, wavsource("dspdump.wav"))
 
-trimFrame = 654321	# manual, discards logo lengh automatically
+trimFrame = 654321		# manual, discards logo lengh automatically
 ARCorrection = false	# aspect ratio correction. auto, but set it for preview
-hd = false			# auto, but set it for preview
-halfFPS = false		# for games that "lag" every other frame
-threads = 8			# manual, how many threads avisynth should use.
+hd = false				# auto, but set it for preview
+halfFPS = false			# for games that "lag" every other frame
+warningScreen = false 	# add photosensitivity warning screen
+threads = 8				# manual, how many threads avisynth should use.
 
 #	if the script guessed wrong, force the right factor by setting to non-zero
 #	for Dolphin footage, force 1
@@ -71,6 +72,9 @@ subString2	= "Playing time: " + time \
 			+ "\nRerecord count: " + rerecords	
 subString3	= "This is a tool-assisted recording." \
 subString4	= "For details, visit https://TASVideos.org/"
+warningText = "This video contains sequences\n" \
+			+ "of flashing lights that may affect\n" \
+			+ "photosensitive viewers."
 
 #	Fix progressing (not floating) audio/video desync
 avDesyncFixer = false
@@ -225,6 +229,17 @@ logoVideo = ImageSource(file=file, start=0, end=int((resized.FrameRate * 2) - 1)
 logoAudio = BlankClip(logoVideo, audio_rate=resized.AudioRate, channels=resized.AudioChannels)
 logo = AudioDub(logoVideo, logoAudio).Lanczos4Resize(resized.width, resized.height)
 last = logo ++ resized
+
+#	Warning
+if (warningScreen) {
+	warning = BlankClip(clip=resized, length=int((resized.FrameRate * 4)))
+	subSize = float(min(warning.height, warning.width)) / 100 * 6.5
+	warning = Subtitle(warning, warningText, size=subSize, text_color=$00FFFFFF, align=5, lsp=0, utf8=true)
+	
+	last = logo ++ warning ++ resized
+} else {
+	last = logo ++ resized
+}
 
 #	Subtitles variables
 subXpos = float(last.width) / 100 * subXpc
